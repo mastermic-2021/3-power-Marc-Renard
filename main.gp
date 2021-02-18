@@ -3,17 +3,20 @@ encodegln(s,n)={    \\fonctionne correctement
   v=[if(x==32,0,x-96)|x<-Vec(Vecsmall(s))];
   if(#v>n^2,warning("string truncated to length ",n^2));
   v = Vec(v,n^2);
-  A=matrix(n,n,i,j,v[(i-1)*n+j]);
-  \\return(A);
+  matrix(n,n,i,j,v[(i-1)*n+j]);
 }
 
 decodegln(m,n)={  \\Fonctionne correctement
+	my(r);
 	r=vector(144);
 	for(i=1,n,for(j=1,n,r[(i-1)*n+j]=m[i,j]));
 	r=lift(r);
 	for(i=1,144,if(r[i]==0,r[i]=32,r[i]=r[i]+96));
+	r=Vec(r,143); \\ on retire le dernier caractère car il semble que la checksum ait été calculée sur le texte sans l'espace à la fin
 	return(Strchr(r));
 }
+
+
 
 expoRapideMat(Matrice,n) = {
 	if(n==0,return (mathid(matsize(Matrice)[1])));
@@ -30,9 +33,9 @@ indiceIdempotence(M)={
 }
 
 
-text=readvec("input.txt")[1]; \\Récupération du fichier input
-\\text[1] t contient le texte avec les espaces
-C=encodegln(text[1],12);
+text=readstr("input.txt")[1]; \\Récupération du fichier input
+\\text contient le texte avec les espaces
+C=encodegln(text,12);
 
 Cmod=Mod(C,27);
 idem=indiceIdempotence(Cmod);
