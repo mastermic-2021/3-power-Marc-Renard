@@ -4,7 +4,7 @@ encodegln(s,n)={    \\fonctionne correctement
   if(#v>n^2,warning("string truncated to length ",n^2));
   v = Vec(v,n^2);
   A=matrix(n,n,i,j,v[(i-1)*n+j]);
-  return(A);
+  \\return(A);
 }
 
 decodegln(m,n)={  \\Fonctionne correctement
