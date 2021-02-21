@@ -8,11 +8,16 @@ encodegln(s,n)={    \\fonctionne correctement
 
 decodegln(m,n)={  \\Fonctionne correctement
 	my(r);
-	r=vector(144);
+        \\ contruction d'un vecteur de taille n^2 pour y stocker la matrice du chiffré
+	r=vector(n^2);
+	\\ on remplit le vecteur avec les coefficients de la matrice
 	for(i=1,n,for(j=1,n,r[(i-1)*n+j]=m[i,j]));
+	\\ on repasse en écriture entière et non en écriture modulaire
 	r=lift(r);
-	for(i=1,144,if(r[i]==0,r[i]=32,r[i]=r[i]+96));
+	\\ On traduit en ASCII
+	for(i=1,n^2,if(r[i]==0,r[i]=32,r[i]=r[i]+96));
 	r=Vec(r,143); \\ on retire le dernier caractère car il semble que la checksum ait été calculée sur le texte sans l'espace à la fin
+	\\ on renvoie la chaine de caractère correspondant à la suite d'ASCII
 	return(Strchr(r));
 }
 
@@ -24,6 +29,7 @@ expoRapideMat(Matrice,n) = {
 	if(n%2==0,return (expoRapideMat(Matrice^2,n/2)),return(Matrice*expoRapideMat(Matrice^2,(n-1)/2)));	
 }
 
+\\ indiceIdempotence permet de trouver le plus petit d tel que M^d=ID
 indiceIdempotence(M)={
 	idMod=Mod(matid(12),27);
 	k=1;
@@ -39,11 +45,14 @@ C=encodegln(text,12);
 
 Cmod=Mod(C,27);
 idem=indiceIdempotence(Cmod);
+\\ on sait ici que M^idem=Id
 
 
-\\Calcul de l'inverse de 65537 mod idem en passant par le pgcd
+\\Calcul de l'inverse de 65537 mod idem en passant par le pgcd et les coefficients de Bezout
 bez=bezout(65537,idem);
 
-M=expoRapideMat(Cmod,bez[1]);
-m=decodegln(M,12);
+Mprime=expoRapideMat(Cmod,bez[1]);
+\\ Mprime=(M^65537)bez[1]=M^(65537*bez[1]) or 65537*bez[1] mod (idem) =1
+\\ Donc Mprime=M^1=M
+m=decodegln(Mprime,12);
 print(m); 
